@@ -1,15 +1,24 @@
 import React from 'react';
 
 import TodoListItem from './TodoListItem/TodoListItem';
+import './TodoList.css';
 
-const TodoList = () => {
+const TodoList = ({todos}) => {
 
-    const tasks = ['eat', 'sleep', 'play', 'walk', 'anime']
+  const todoElements = todos.map((todo, id) => {
     return (
-      <ul>
-        {tasks.map((task, id) => <li key={id}><TodoListItem task={task}/></li> )}
-      </ul>
-    )
-  }
+      <li key={id} className='list-group-item'>
+      <TodoListItem
+        task={todo.task}
+        importance={todo.isImportant ? 'importantTask' : 'normalTask'}
+      />
+      </li>)
+  })
+
+  return (
+    <ul className='list-group todo-list'>
+      { todoElements }
+    </ul>)
+}
 
 export default TodoList;
