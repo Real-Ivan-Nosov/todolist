@@ -20,7 +20,9 @@ class App extends Component {
         this.createTodoTask('sleep'),
         this.createTodoTask('play'),
         this.createTodoTask('walk'),
-        this.createTodoTask('anime')]
+        this.createTodoTask('anime')],
+      term: '',
+      mode: 'all'
     };
   }
 
@@ -89,24 +91,53 @@ class App extends Component {
     })
   }
 
+  search = (tasks, term) => {
+    if (term.length === 0) {
+      return tasks;
+    }
+    return tasks.filter(el => el.task.toLowerCase().includes(term.toLowerCase()));
+    }
+    
+  searchChange = (term) => {
+    this.setState({term})
+  }
+  
+  changeMode = (modeType) => {
+    this.setState({
+      mode: modeType
+    }) 
+  }
+
+  modeChecker = (tasks, mode) => {
+    if (mode === 'done') {
+      return tasks.filter((el) => el.isDone)
+    } else if (mode === 'active') {
+      return tasks.filter((el) => !el.isDone)
+    } else {
+      return tasks
+    }
+  }
+
   render() {
 
-    const { todoData } = this.state;
+    const { todoData, term, mode } = this.state;
+    const visibleTasks = this.modeChecker(this.search(todoData, term), mode);
 
     const doneCount = todoData.filter((el) => el.isDone).length;
-
     const todoCount = todoData.length - doneCount;
+
+    
 
     return (
       <div className='todo-app' >
         <AppHeader toDo={todoCount} done={doneCount} />
         <div className='top-panel d-flex'>
-          <SearchPanel />
-          <ItemStatusFilter />
+          <SearchPanel searchChange={this.searchChange} />
+          <ItemStatusFilter changeMode={this.changeMode} mode={mode} />
         </div>
 
         <TodoList
-          todos={todoData}
+          todos={visibleTasks}
           onDeleted={(id) => this.deleteItem(id)}
           onToggleImportant={this.onToggleImportant}
           onToggleDone={(id) => this.onToggleDone(id)}

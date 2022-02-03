@@ -4,17 +4,36 @@ import './ItemStatusFilter.css';
 
 class ItemStatusFilter extends Component {
 
-
+  constructor(props) {
+    super();
+  }
+  
+  buttons = [
+    {name: 'all', label: 'All'},
+    {name: 'active', label: 'Active'},
+    {name: 'done', label: 'Done'}
+  ]
+  
 
   render() {
+
+    const {changeMode, mode} = this.props;
+
+    const buttons = this.buttons.map(({ name, label}) => {
+      let buttonClasses = 'btn';
+      const isCurrentMode = mode === name;
+      isCurrentMode ? buttonClasses += ' btn-info' : buttonClasses += ' btn-outline-secondary'
+      return (
+        <button type="button"
+          className={buttonClasses}
+          key={label}
+          onClick={() => changeMode(name)}>{label}</button>
+      )
+    })
+
     return (
       <div className="btn-group">
-        <button type="button"
-          className="btn btn-info">All</button>
-        <button type="button"
-          className="btn btn-outline-secondary">Active</button>
-        <button type="button"
-          className="btn btn-outline-secondary">Done</button>
+        { buttons }
       </div>
     )
   }
