@@ -4,6 +4,7 @@ import TodoList from '../TodoList/TodoList';
 import AppHeader from '..//AppHeader/AppHeader';
 import SearchPanel from '..//SearchPanel/SearchPanel';
 import ItemStatusFilter from '..//ItemStatusFilter/ItemStatusFilter';
+import ItemAddForm from '../ItemAddForm/ItemAddForm';
 
 import './App.css';
 
@@ -15,12 +16,23 @@ class App extends Component {
     super();
     this.state = {
       todoData: [
-        { task: 'eat', isImportant: true },
-        { task: 'sleep', isImportant: true },
-        { task: 'play', isImportant: false },
-        { task: 'walk', isImportant: true },
-        { task: 'anime', isImportant: false }]
+        this.createTodoTask('eat'),
+        this.createTodoTask('sleep'),
+        this.createTodoTask('play'),
+        this.createTodoTask('walk'),
+        this.createTodoTask('anime')]
     };
+  }
+
+  maxId = 100;
+
+  createTodoTask(text) {
+    return {
+      task: text,
+      isImportant: false,
+      isDone: false,
+      id: this.maxId++
+    }
   }
 
   deleteItem = (id) => {
@@ -34,22 +46,73 @@ class App extends Component {
       return {
         todoData: newArray
       }
-    }) 
+    })
   }
- 
+
+  addTask = (text) => {
+    const newTask = this.createTodoTask(text);
+
+    this.setState(({ todoData }) => {
+      return ({
+        todoData: [...todoData, newTask]
+      })
+    })
+  }
+
+  toggleProperty = (arr, id, propName) => {
+    const idx = arr.findIndex((el, index) => index === id);
+
+    const oldTask = arr[idx];
+    const newTask = { ...oldTask, [propName]: !oldTask[propName] };
+
+    return [
+      ...arr.slice(0, idx),
+      newTask,
+      ...arr.slice(idx + 1)
+    ]
+  }
+
+
+  onToggleImportant = (id) => {
+    this.setState(({ todoData }) => {
+      return {
+        todoData: this.toggleProperty(todoData, id, 'isImportant')
+      }
+    })
+  }
+
+  onToggleDone = (id) => {
+    this.setState(({ todoData }) => {
+      return {
+        todoData: this.toggleProperty(todoData, id, 'isDone')
+      }
+    })
+  }
+
   render() {
+
+    const { todoData } = this.state;
+
+    const doneCount = todoData.filter((el) => el.isDone).length;
+
+    const todoCount = todoData.length - doneCount;
+
     return (
       <div className='todo-app' >
-        <AppHeader toDo={1} done={3} />
+        <AppHeader toDo={todoCount} done={doneCount} />
         <div className='top-panel d-flex'>
           <SearchPanel />
           <ItemStatusFilter />
         </div>
 
         <TodoList
-          todos={this.state.todoData}
+          todos={todoData}
           onDeleted={(id) => this.deleteItem(id)}
+          onToggleImportant={this.onToggleImportant}
+          onToggleDone={(id) => this.onToggleDone(id)}
         />
+
+        <ItemAddForm addTask={(text) => this.addTask(text)} />
       </div>
     )
   }
